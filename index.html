@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wheel RPM Visualizer</title>
+    <link rel="stylesheet" href="css/rpm_visualizer.css">
+</head>
+<body>
+    <div class="page-title">Wheel RPM Visualizer</div>
+    <div class="container">
+        <div class="visualization">
+            <canvas id="wheelCanvas" width="600" height="600"></canvas>
+        </div>
+        <div class="controls">
+            <div class="title">Controls</div>
+
+            <div class="control-group">
+                <div class="control-header">
+                    <label for="rpmSlider">RPM</label>
+                    <div class="max-rpm-buttons">
+                        <button id="rpmMinusBtn">−</button>
+                        <button id="rpmPlusBtn">+</button>
+                    </div>
+                </div>
+                <input type="range" id="rpmSlider" min="0" max="5000" value="1000" step="50">
+                <input type="number" id="rpmInput" min="0" max="5000" value="1000" step="50">
+                <div class="value-display">
+                    <span>0</span>
+                    <span id="maxRpmDisplay">5000</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="radiusSlider">Radius (px)</label>
+                <input type="range" id="radiusSlider" min="40" max="200" value="120" step="10">
+                <input type="number" id="radiusInput" min="40" max="200" value="120" step="10">
+                <div class="value-display">
+                    <span>40</span>
+                    <span>200</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="indicatorLengthSlider">Indicator Length (px)</label>
+                <input type="range" id="indicatorLengthSlider" min="10" max="50" value="30" step="5">
+                <input type="number" id="indicatorLengthInput" min="10" max="50" value="30" step="5">
+                <div class="value-display">
+                    <span>10</span>
+                    <span>50</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="arcSlider">Arc (°)</label>
+                <input type="range" id="arcSlider" min="0" max="360" value="360" step="5">
+                <input type="number" id="arcInput" min="0" max="360" value="360" step="5">
+                <div class="value-display">
+                    <span>0</span>
+                    <span>360</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Direction</label>
+                <div class="direction-buttons">
+                    <button id="directionClockwise" class="active">CW</button>
+                    <button id="directionCounterClockwise">CCW</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div style="display: flex; gap: 10px;">
+                    <button id="startBtn" style="flex: 1; padding: 12px; border: 1px solid #000; background-color: #000; color: #fff; font-weight: 600; cursor: pointer; font-size: 14px;">Start</button>
+                    <button id="stopBtn" style="flex: 1; padding: 12px; border: 1px solid #000; background-color: #fff; color: #000; font-weight: 600; cursor: pointer; font-size: 14px;">Stop</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <button id="resetBtn" style="width: 100%; padding: 12px; border: 1px solid #000; background-color: #000; color: #fff; font-weight: 600; cursor: pointer; font-size: 14px;">Reset</button>
+            </div>
+
+            <div class="info">
+                NCR Wheel RPM Visualizer, made by Gem.
+            </div>
+        </div>
+    </div>
+
+    <script src="js/rpm_visualizer.js"></script>
+</body>
+</html>
