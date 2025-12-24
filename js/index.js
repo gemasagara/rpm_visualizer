@@ -1,5 +1,34 @@
 const canvas = document.getElementById('wheelCanvas');
 const ctx = canvas.getContext('2d');
+const controlsPanel = document.querySelector('.controls');
+const resizeHandle = document.querySelector('.resize-handle');
+
+// Resize functionality
+let isResizing = false;
+
+resizeHandle.addEventListener('mousedown', (e) => {
+    isResizing = true;
+    e.preventDefault();
+});
+
+document.addEventListener('mousemove', (e) => {
+    if (!isResizing) return;
+
+    const container = document.querySelector('.container');
+    const newWidth = container.getBoundingClientRect().right - e.clientX;
+    
+    // Set minimum and maximum width constraints
+    const minWidth = 200;
+    const maxWidth = window.innerWidth * 0.7;
+    
+    if (newWidth >= minWidth && newWidth <= maxWidth) {
+        controlsPanel.style.width = newWidth + 'px';
+    }
+});
+
+document.addEventListener('mouseup', () => {
+    isResizing = false;
+});
 
 // Elements
 const rpmSlider = document.getElementById('rpmSlider');

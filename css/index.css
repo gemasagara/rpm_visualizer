@@ -1,12 +1,10 @@
 .page-title {
-    position: fixed;
-    top: 20px;
-    left: 20px;
     font-size: 24px;
     font-weight: 700;
     letter-spacing: 1px;
     color: #000;
-    z-index: 100;
+    text-align: center;
+    padding: 20px;
 }
 * {
     margin: 0;
@@ -30,6 +28,7 @@ body {
 .visualization {
     flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     background-color: #f5f5f5;
@@ -50,6 +49,145 @@ canvas {
     display: flex;
     flex-direction: column;
     gap: 30px;
+    position: relative;
+    resize: horizontal;
+    overflow: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.controls::-webkit-scrollbar {
+    display: none;
+}
+
+.resize-handle {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: #ddd;
+    cursor: col-resize;
+    user-select: none;
+}
+
+.resize-handle:hover {
+    background-color: #000;
+}
+
+@media (max-width: 1024px) {
+    .page-title {
+        font-size: 20px;
+        top: 15px;
+    }
+
+    .controls {
+        width: 250px;
+        padding: 30px 20px;
+    }
+
+    canvas {
+        max-width: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 18px;
+        top: 12px;
+    }
+
+    .controls {
+        width: 220px;
+        padding: 20px 15px;
+        gap: 20px;
+    }
+
+    .control-group label {
+        font-size: 13px;
+    }
+
+    .control-group input[type="number"] {
+        font-size: 13px;
+        padding: 8px;
+    }
+
+    .title {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .value-display {
+        font-size: 12px;
+    }
+
+    canvas {
+        max-width: 350px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        height: auto;
+        min-height: 100vh;
+        flex-direction: column;
+    }
+
+    .page-title {
+        position: static;
+        transform: none;
+        font-size: 16px;
+        padding: 15px;
+        text-align: center;
+        margin-bottom: 0;
+    }
+
+    .container {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .visualization {
+        flex: none;
+        min-height: 300px;
+        padding: 15px;
+    }
+
+    .controls {
+        width: 100%;
+        border-top: 1px solid #000;
+        padding: 15px;
+        gap: 15px;
+        max-height: none;
+    }
+
+    .control-group label {
+        font-size: 12px;
+    }
+
+    .control-group input[type="number"],
+    .control-group input[type="range"] {
+        font-size: 12px;
+    }
+
+    .max-rpm-buttons button {
+        width: 28px;
+        height: 28px;
+        font-size: 16px;
+    }
+
+    .title {
+        font-size: 14px;
+    }
+
+    .info {
+        font-size: 11px;
+    }
+
+    canvas {
+        max-width: 280px;
+        border: 1px solid #000;
+    }
 }
 
 .control-group {
