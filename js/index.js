@@ -3,6 +3,13 @@ const ctx = canvas.getContext('2d');
 const controlsPanel = document.querySelector('.controls');
 const resizeHandle = document.querySelector('.resize-handle');
 
+// Stopwatch state
+let stopwatchState = {
+    elapsedMs: 0,
+    isRunning: false,
+    lastStartTime: 0
+};
+
 // Resize functionality
 let isResizing = false;
 
@@ -50,7 +57,7 @@ const resetBtn = document.getElementById('resetBtn');
 
 // State
 let state = {
-    rpm: 1000,
+    rpm: 100,
     maxRpm: 5000,
     radius: 120,
     indicatorLength: 30,
@@ -60,30 +67,92 @@ let state = {
     running: false
 };
 
-// Sync controls
-rpmSlider.addEventListener('input', (e) => {
-    state.rpm = parseInt(e.target.value);
-    rpmInput.value = state.rpm;
-});
+// Utility function to set RPM with proper validation and synchronization
+function setRPM(value) {
+    // Parse to number and ensure it's valid
+    let newRpm = parseInt(value) || 0;
+    
+    // Clamp RPM between min (0) and max (state.maxRpm)
+    newRpm = Math.max(0, Math.min(newRpm, state.maxRpm));
+    
+    // Only update if value actually changed
+    if (newRpm !== state.rpm) {
+        state.rpm = newRpm;
+        
+        // Synchronize both slider and input
+        rpmSlider.value = state.rpm;
+        rpmInput.value = state.rpm;
+    }
+}
 
-rpmInput.addEventListener('input', (e) => {
-    state.rpm = parseInt(e.target.value) || 0;
-    rpmSlider.value = state.rpm;
-});
-
-rpmPlusBtn.addEventListener('click', () => {
-    state.maxRpm += 500;
-    rpmSlider.max = state.maxRpm;
-    rpmInput.max = state.maxRpm;
-    maxRpmDisplay.textContent = state.maxRpm;
-});
-
-rpmMinusBtn.addEventListener('click', () => {
-    if (state.maxRpm > 100) {
-        state.maxRpm -= 500;
+// Utility function to set max RPM with proper validation
+function setMaxRPM(newValue) {
+    let newMaxRpm = newValue;
+    
+    // Enforce minimum of 100
+    if (newMaxRpm < 100) {
+        newMaxRpm = 100;
+    }
+    
+    if (newMaxRpm !== state.maxRpm) {
+        state.maxRpm = newMaxRpm;
+        
+        // Update slider and input constraints
         rpmSlider.max = state.maxRpm;
         rpmInput.max = state.maxRpm;
         maxRpmDisplay.textContent = state.maxRpm;
+        
+        // If current RPM exceeds new max, clamp it
+        if (state.rpm > state.maxRpm) {
+            setRPM(state.maxRpm);
+        }
+    }
+}
+
+// Utility function to format stopwatch time
+function formatStopwatch(ms) {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    const centiseconds = Math.floor((ms % 1000) / 10);
+    
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}:${String(centiseconds).padStart(2, '0')}`;
+}
+
+// Utility function to update stopwatch state
+function updateStopwatchState() {
+    if (stopwatchState.isRunning) {
+        const now = performance.now();
+        const elapsedSinceStart = now - stopwatchState.lastStartTime;
+        stopwatchState.elapsedMs += elapsedSinceStart;
+        stopwatchState.lastStartTime = now;
+    }
+}
+
+// Sync controls - slider input
+rpmSlider.addEventListener('input', (e) => {
+    setRPM(e.target.value);
+});
+
+// Sync controls - number input
+rpmInput.addEventListener('input', (e) => {
+    setRPM(e.target.value);
+});
+
+// RPM max adjustment buttons
+rpmPlusBtn.addEventListener('click', () => {
+    // Special case: if at 100, increase by 400 to reach 500
+    if (state.maxRpm === 100) {
+        setMaxRPM(500);
+    } else {
+        setMaxRPM(state.maxRpm + 500);
+    }
+});
+
+rpmMinusBtn.addEventListener('click', () => {
+    // Only decrease if above 100
+    if (state.maxRpm > 100) {
+        setMaxRPM(state.maxRpm - 500);
     }
 });
 
@@ -111,6 +180,8 @@ directionCounterClockwise.addEventListener('click', () => {
 
 startBtn.addEventListener('click', () => {
     state.running = true;
+    stopwatchState.isRunning = true;
+    stopwatchState.lastStartTime = performance.now();
     startBtn.style.backgroundColor = '#000';
     startBtn.style.color = '#fff';
     stopBtn.style.backgroundColor = '#fff';
@@ -119,6 +190,7 @@ startBtn.addEventListener('click', () => {
 
 stopBtn.addEventListener('click', () => {
     state.running = false;
+    stopwatchState.isRunning = false;
     stopBtn.style.backgroundColor = '#000';
     stopBtn.style.color = '#fff';
     startBtn.style.backgroundColor = '#fff';
@@ -127,13 +199,13 @@ stopBtn.addEventListener('click', () => {
 
 resetBtn.addEventListener('click', () => {
     state.rotation = 0;
-    state.rpm = 0;
+    setRPM(100);
     state.running = false;
     state.arc = 360;
-    rpmSlider.value = 0;
-    rpmInput.value = 0;
     arcSlider.value = 360;
     arcInput.value = 360;
+    stopwatchState.elapsedMs = 0;
+    stopwatchState.isRunning = false;
     startBtn.style.backgroundColor = '#fff';
     startBtn.style.color = '#000';
     stopBtn.style.backgroundColor = '#000';
@@ -169,6 +241,9 @@ function animate(currentTime) {
     const deltaTime = (currentTime - lastFrameTime) / 1000;
     lastFrameTime = currentTime;
 
+    // Update stopwatch state
+    updateStopwatchState();
+
     // Update rotation based on RPM only if running
     if (state.running) {
         // RPM = rotations per minute
@@ -182,6 +257,14 @@ function animate(currentTime) {
     // Clear canvas
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw stopwatch at top center
+    const stopwatchText = formatStopwatch(stopwatchState.elapsedMs);
+    ctx.font = 'bold 24px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+    ctx.fillStyle = '#000';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText(stopwatchText, canvas.width / 2, 20);
 
     // Draw circle arc
     const centerX = canvas.width / 2;
